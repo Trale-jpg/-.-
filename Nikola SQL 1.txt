@@ -1,0 +1,68 @@
+
+пк@Nikola ~
+$ ssh-keygen
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/пк/.ssh/id_ed25519):
+/home/пк/.ssh/id_ed25519 already exists.
+Overwrite (y/n)? y
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/пк/.ssh/id_ed25519
+Your public key has been saved in /home/пк/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:1l20ptvBrIWd3eWXhlC28M7bvIcJ7z4mr55ncuFs3lI пк@Nikola
+The key's randomart image is:
++--[ED25519 256]--+
+|           . o.  |
+|            =... |
+|           . o+ .|
+|         . .+O.++|
+|        S . ++Bo=|
+|       .    .=*.E|
+|            o*.B |
+|            o.#.o|
+|           .+#=+o|
++----[SHA256]-----+
+
+пк@Nikola ~
+$ cat ~/.ssh/id_ed25519.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAzDA7WheSIyJLz/y20W/ySOwQEZM+KcoPFVAWsqegr+ пк@Nikola
+
+пк@Nikola ~
+$ ssh 6f0e7790-5e68-40de-b345-3dd1d0794aa0@serverhub.praktikum-services.ru -p 4554
+morty@d6840f63de5a:~$ psql -U morty -d scooter_rent
+Password for user morty:
+psql (11.18 (Debian 11.18-0+deb10u1))
+Type "help" for help.
+
+scooter_rent=# SELECT c.login, COUNT(o.id) AS orders_in_delivery FROM Couriers c JOIN Orders o ON c.id = o.courierid WHERE o.status = ' GROUP BY c.login ORDER BY orders_in_delivery DESC;
+ login | orders_in_delivery
+-------+--------------------
+(0 rows)
+
+scooter_rent=# SELECT tracker_id, CASE WHEN finished = true THEN 2 WHEN cancelled = true THEN -1 WHEN inDelivery = true THEN 1 ELSE 0 us FROM Orders;
+ERROR:  column "tracker_id" does not exist
+LINE 1: SELECT tracker_id, CASE WHEN finished = true THEN 2 WHEN can...
+               ^
+scooter_rent=# ^C
+scooter_rent=# \d Orders;
+                                     Table "public.orders"
+  Column   |          Type          | Collation | Nullable |              Default
+-----------+------------------------+-----------+----------+------------------------------------
+ id        | integer                |           | not null | nextval('orders_id_seq'::regclass)
+ courierid | integer                |           |          |
+ status    | character varying(255) |           | not null |
+Indexes:
+    "orders_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "orders_courierid_fkey" FOREIGN KEY (courierid) REFERENCES couriers(id)
+
+scooter_rent=# SELECT id AS tracker_id, CASE WHEN status = 'finished' THEN 2 WHEN status = 'cancelled' THEN -1 WHEN status = 'inDeliveELSE 0 END AS status FROM Orders;
+ tracker_id | status
+------------+--------
+          1 |      0
+          2 |      0
+          3 |      0
+          4 |      0
+          5 |      0
+(5 rows)
